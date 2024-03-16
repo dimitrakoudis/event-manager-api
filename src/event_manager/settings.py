@@ -140,3 +140,16 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ),
 }
+
+# Django settings for debug mode
+if DEBUG:
+    INSTALLED_APPS = INSTALLED_APPS + [
+        'drf_spectacular',
+    ]
+    REST_FRAMEWORK['DEFAULT_SCHEMA_CLASS'] = 'drf_spectacular.openapi.AutoSchema'
+    SPECTACULAR_SETTINGS = {
+        'TITLE': 'event-manager-api',
+        'DESCRIPTION': 'Proof of concept application',
+        'SCHEMA_PATH_PREFIX': '/api/v[0-9]',
+        'SERVE_INCLUDE_SCHEMA': False,
+    }
