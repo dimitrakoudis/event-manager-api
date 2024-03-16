@@ -2,6 +2,8 @@ from django.db.models import QuerySet
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, permissions
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from events.models import Event
@@ -65,3 +67,13 @@ class EventViewSet(mixins.ListModelMixin,
         Only purpose is to extend the schema of API document.
         """
         return super().list(request, *args, **kwargs)
+
+    @action(detail=True, methods=['post'])
+    def register(self, request, pk=None):
+        event = self.get_object()
+        current_user = request.user
+
+        if current_user not in event.attendees.all():
+            event.attendees.add(current_user)
+
+        return Response(status=204)
