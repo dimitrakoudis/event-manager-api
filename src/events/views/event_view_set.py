@@ -87,7 +87,8 @@ class EventViewSet(mixins.ListModelMixin,
         if event.status != Event.Status.PUBLISHED:
             raise ValidationError({'detail': 'ACTION_NOT_ALLOWED_ON_NON_PUBLISHED_EVENT'})
 
-        if current_user not in event.attendees.all():
-            event.attendees.add(current_user)
+        if current_user in event.attendees.all():
+            raise ValidationError({'detail': 'WAS_ALREADY_REGISTERED_TO_THIS_EVENT'})
 
+        event.attendees.add(current_user)
         return Response(status=204)
