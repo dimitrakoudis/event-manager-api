@@ -47,3 +47,13 @@ class EventSerializerTests(APITestCase):
         serializer.is_valid()
         new_event = serializer.save()
         self.assertEqual(new_event.title, 'testing-create')
+
+    def test_save_update_existing_instance(self):
+        self.minimum_valid_data['title'] = 'testing-update'
+
+        event = baker.make(Event, title='initial-title')
+        serializer = EventSerializer(event, data=self.minimum_valid_data)
+
+        serializer.is_valid()
+        new_invoice = serializer.save()
+        self.assertEqual(new_invoice.title, 'testing-update')
