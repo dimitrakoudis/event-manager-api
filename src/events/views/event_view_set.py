@@ -1,10 +1,12 @@
 from django.db.models import QuerySet
 from django.utils import timezone
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework import mixins, permissions
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -58,6 +60,24 @@ class EventViewSet(mixins.ListModelMixin,
     serializer_class = EventSerializer
 
     pagination_class = EventResultsPagination
+    filter_backends = (
+        DjangoFilterBackend,
+        OrderingFilter,
+        SearchFilter,
+    )
+    ordering_fields = '__all__'
+    ordering = ('-timestamp', )
+
+    search_fields = (
+        'place',
+        'title',
+        'description',
+    )
+    filterset_fields = {
+        'status': ('exact', ),
+        'organizer': ('exact', ),
+        'timestamp': ('exact', 'gte', 'lte', ),
+    }
 
     def get_permissions(self):
         """
