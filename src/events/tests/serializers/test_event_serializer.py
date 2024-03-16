@@ -1,3 +1,6 @@
+from unittest.mock import Mock
+
+from django.contrib.auth.models import User
 from model_bakery import baker
 from rest_framework.test import APITestCase
 
@@ -32,3 +35,15 @@ class EventSerializerTests(APITestCase):
 
         self.assertTrue(serializer.is_valid())
         self.assertDictEqual(serializer.errors, {})
+
+    def test_save_create_new_instance(self):
+        self.minimum_valid_data['title'] = 'testing-create'
+        request_user = baker.make(User)
+
+        mocked_request = Mock()
+        mocked_request.user.id = request_user.id
+        serializer = EventSerializer(data=self.minimum_valid_data, context={'request': mocked_request})
+
+        serializer.is_valid()
+        new_event = serializer.save()
+        self.assertEqual(new_event.title, 'testing-create')
