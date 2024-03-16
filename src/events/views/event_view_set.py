@@ -1,4 +1,6 @@
 from django.db.models import QuerySet
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, permissions
 from rest_framework.viewsets import GenericViewSet
 
@@ -37,4 +39,29 @@ class EventViewSet(mixins.ListModelMixin,
         return super().get_permissions()
 
     def get_queryset(self) -> QuerySet[Event]:
-        return Event.objects.all()
+        queryset = Event.objects.all()
+        current_user = self.request.user
+
+        only_mine_param = self.request.query_params.get('only_mine', None)
+        if only_mine_param == 'true':
+            queryset = queryset.filter(organizer=current_user)
+
+        return queryset
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='only_mine',
+                description='Filter only events I organized',
+                required=False,
+                location=OpenApiParameter.QUERY,
+                type=OpenApiTypes.BOOL,
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        """
+        Method provides same functionality as inherited.
+        Only purpose is to extend the schema of API document.
+        """
+        return super().list(request, *args, **kwargs)
