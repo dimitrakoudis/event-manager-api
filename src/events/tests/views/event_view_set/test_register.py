@@ -67,6 +67,17 @@ class RegisterToEventTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.json()['detail'], 'ACTION_NOT_ALLOWED_ON_NON_PUBLISHED_EVENT')
 
+    def test_user_cannot_register_to_same_event_more_than_once(self):
+        self.future_evt_2.attendees.add(self.u1)
+
+        response = self.u1_client.post(
+            f'/api/v1/events/{self.future_evt_2.id}/register/',
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()['detail'], 'WAS_ALREADY_REGISTERED_TO_THIS_EVENT')
+
     def test_user_cannot_register_to_full_event(self):
         self.future_evt_2.attendees.add(self.u2)
         self.assertEqual(self.future_evt_2.capacity, 1)
