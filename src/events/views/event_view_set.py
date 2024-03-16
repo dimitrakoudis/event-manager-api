@@ -5,6 +5,7 @@ from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_sche
 from rest_framework import mixins, permissions
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -26,6 +27,16 @@ def _validate_event_generic_action(event: Event) -> None:
         raise ValidationError({'detail': 'ACTION_NOT_ALLOWED_ON_NON_PUBLISHED_EVENT'})
 
 
+class EventResultsPagination(PageNumberPagination):
+    """
+    Custom pagination class to be used in Events View set
+    """
+
+    page_size = 25
+    max_page_size = 100
+    page_size_query_param = 'page_size'
+
+
 class IsEventOrganizer(permissions.BasePermission):
     """
     Allows access only to organizer of the event
@@ -45,6 +56,8 @@ class EventViewSet(mixins.ListModelMixin,
 
     permission_classes = [permissions.IsAuthenticated, ]
     serializer_class = EventSerializer
+
+    pagination_class = EventResultsPagination
 
     def get_permissions(self):
         """
