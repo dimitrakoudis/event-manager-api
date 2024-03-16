@@ -152,6 +152,7 @@ class EventViewSet(mixins.ListModelMixin,
             - Event timestamp is past
             - Event is not in published status
             - User is already registered to the event
+            - Event is full of attendees
         """
 
         event = self.get_object()
@@ -161,6 +162,9 @@ class EventViewSet(mixins.ListModelMixin,
 
         if current_user in event.attendees.all():
             raise ValidationError({'detail': 'WAS_ALREADY_REGISTERED_TO_THIS_EVENT'})
+
+        if event.capacity and event.attendees_count >= event.capacity:
+            raise ValidationError({'detail': 'EVENT_IS_FULL'})
 
         event.attendees.add(current_user)
         return Response(status=204)
