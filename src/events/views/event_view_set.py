@@ -100,3 +100,34 @@ class EventViewSet(mixins.ListModelMixin,
 
         event.attendees.add(current_user)
         return Response(status=204)
+
+    @extend_schema(
+        request={},
+        responses={
+            204: OpenApiResponse(description='Successfully un-registered'),
+        },
+    )
+    @action(detail=True, url_path='un-register', methods=['post'])
+    def un_register(self, request, pk=None):
+        """
+        Custom action to un-register user to event.
+        Raises Http Error (400) when:
+            - Event timestamp is past
+            - Event is not in published status
+            - User was not registered to the event
+        """
+
+        event = self.get_object()
+        current_user = request.user
+
+        if event.timestamp < timezone.now():
+            raise ValidationError({'detail': 'ACTION_NOT_ALLOWED_ON_PAST_EVENT'})
+
+        if event.status != Event.Status.PUBLISHED:
+            raise ValidationError({'detail': 'ACTION_NOT_ALLOWED_ON_NON_PUBLISHED_EVENT'})
+
+        if current_user not in event.attendees.all():
+            raise ValidationError({'detail': 'WAS_NOT_REGISTERED_TO_THIS_EVENT'})
+
+        event.attendees.remove(current_user)
+        return Response(status=204)
