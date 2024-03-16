@@ -12,6 +12,20 @@ from events.models import Event
 from events.serializers import EventSerializer
 
 
+def _validate_event_generic_action(event: Event) -> None:
+    """
+     Throws DRF validation error in case the event:
+        - is past
+        - is not published
+    """
+
+    if event.timestamp < timezone.now():
+        raise ValidationError({'detail': 'ACTION_NOT_ALLOWED_ON_PAST_EVENT'})
+
+    if event.status != Event.Status.PUBLISHED:
+        raise ValidationError({'detail': 'ACTION_NOT_ALLOWED_ON_NON_PUBLISHED_EVENT'})
+
+
 class IsEventOrganizer(permissions.BasePermission):
     """
     Allows access only to organizer of the event
@@ -89,11 +103,7 @@ class EventViewSet(mixins.ListModelMixin,
         event = self.get_object()
         current_user = request.user
 
-        if event.timestamp < timezone.now():
-            raise ValidationError({'detail': 'ACTION_NOT_ALLOWED_ON_PAST_EVENT'})
-
-        if event.status != Event.Status.PUBLISHED:
-            raise ValidationError({'detail': 'ACTION_NOT_ALLOWED_ON_NON_PUBLISHED_EVENT'})
+        _validate_event_generic_action(event)
 
         if current_user in event.attendees.all():
             raise ValidationError({'detail': 'WAS_ALREADY_REGISTERED_TO_THIS_EVENT'})
@@ -120,11 +130,7 @@ class EventViewSet(mixins.ListModelMixin,
         event = self.get_object()
         current_user = request.user
 
-        if event.timestamp < timezone.now():
-            raise ValidationError({'detail': 'ACTION_NOT_ALLOWED_ON_PAST_EVENT'})
-
-        if event.status != Event.Status.PUBLISHED:
-            raise ValidationError({'detail': 'ACTION_NOT_ALLOWED_ON_NON_PUBLISHED_EVENT'})
+        _validate_event_generic_action(event)
 
         if current_user not in event.attendees.all():
             raise ValidationError({'detail': 'WAS_NOT_REGISTERED_TO_THIS_EVENT'})
