@@ -1,6 +1,6 @@
 from django.db.models import QuerySet
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiParameter, extend_schema
+from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework import mixins, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -68,6 +68,12 @@ class EventViewSet(mixins.ListModelMixin,
         """
         return super().list(request, *args, **kwargs)
 
+    @extend_schema(
+        request={},
+        responses={
+            204: OpenApiResponse(description='Successfully registered'),
+        },
+    )
     @action(detail=True, methods=['post'])
     def register(self, request, pk=None):
         event = self.get_object()
