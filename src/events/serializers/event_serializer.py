@@ -14,7 +14,12 @@ class EventSerializer(serializers.ModelSerializer):
         """
 
         current_user_id = self.context['request'].user.id
+        categories = validated_data.pop('categories', None)
+
         instance = Event.objects.create(**validated_data, organizer_id=current_user_id)
+        if categories:
+            instance.categories.add(*categories)
+
         return instance
 
     class Meta:

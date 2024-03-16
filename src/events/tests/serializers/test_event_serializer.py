@@ -26,7 +26,7 @@ class EventSerializerTests(APITestCase):
             sorted(list(serializer.data[0].keys())),
             sorted([
                 'id', 'title', 'organizer', 'status', 'place', 'timestamp',
-                'description', 'capacity', 'attendees', 'created_at', 'updated_at',
+                'description', 'capacity', 'attendees', 'categories', 'created_at', 'updated_at',
             ])
         )
 

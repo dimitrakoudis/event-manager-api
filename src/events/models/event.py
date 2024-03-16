@@ -29,6 +29,10 @@ class Event(models.Model):
     timestamp = models.DateTimeField('timestamp', null=False, blank=False)
     description = models.TextField('description', null=False, blank=True, default='')
 
+    categories = models.ManyToManyField(
+        'events.Category', verbose_name='categories', related_name='events', blank=True,
+    )
+
     capacity = models.IntegerField(
         'capacity',
         validators=[MinValueValidator(1)],

@@ -24,6 +24,7 @@ class EventAdmin(admin.ModelAdmin):
     )
     autocomplete_fields = (
         'attendees',
+        'categories',
     )
 
     search_fields = (
