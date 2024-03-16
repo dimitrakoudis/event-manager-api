@@ -97,6 +97,13 @@ class EventViewSet(mixins.ListModelMixin,
         if only_mine_param == 'true':
             queryset = queryset.filter(organizer=current_user)
 
+        only_future_param = self.request.query_params.get('only_future', None)
+        only_past_param = self.request.query_params.get('only_past', None)
+        if only_future_param == 'true':
+            queryset = queryset.filter(timestamp__gt=timezone.now())
+        elif only_past_param == 'true':
+            queryset = queryset.filter(timestamp__lte=timezone.now())
+
         return queryset
 
     @extend_schema(
@@ -104,6 +111,20 @@ class EventViewSet(mixins.ListModelMixin,
             OpenApiParameter(
                 name='only_mine',
                 description='Filter only events I organized',
+                required=False,
+                location=OpenApiParameter.QUERY,
+                type=OpenApiTypes.BOOL,
+            ),
+            OpenApiParameter(
+                name='only_future',
+                description='Filter only future events (overrides only_past query param)',
+                required=False,
+                location=OpenApiParameter.QUERY,
+                type=OpenApiTypes.BOOL,
+            ),
+            OpenApiParameter(
+                name='only_past',
+                description='Filter only past events',
                 required=False,
                 location=OpenApiParameter.QUERY,
                 type=OpenApiTypes.BOOL,
