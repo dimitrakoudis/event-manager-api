@@ -78,6 +78,14 @@ class EventViewSet(mixins.ListModelMixin,
     )
     @action(detail=True, methods=['post'])
     def register(self, request, pk=None):
+        """
+        Custom action to register user to event.
+        Raises Http Error (400) when:
+            - Event timestamp is past
+            - Event is not in published status
+            - User is already registered to the event
+        """
+
         event = self.get_object()
         current_user = request.user
 
