@@ -84,6 +84,9 @@ class EventViewSet(mixins.ListModelMixin,
         if event.timestamp < timezone.now():
             raise ValidationError({'detail': 'ACTION_NOT_ALLOWED_ON_PAST_EVENT'})
 
+        if event.status != Event.Status.PUBLISHED:
+            raise ValidationError({'detail': 'ACTION_NOT_ALLOWED_ON_NON_PUBLISHED_EVENT'})
+
         if current_user not in event.attendees.all():
             event.attendees.add(current_user)
 
