@@ -1,8 +1,10 @@
 from django.db.models import QuerySet
+from django.utils import timezone
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework import mixins, permissions
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -78,6 +80,9 @@ class EventViewSet(mixins.ListModelMixin,
     def register(self, request, pk=None):
         event = self.get_object()
         current_user = request.user
+
+        if event.timestamp < timezone.now():
+            raise ValidationError({'detail': 'ACTION_NOT_ALLOWED_ON_PAST_EVENT'})
 
         if current_user not in event.attendees.all():
             event.attendees.add(current_user)
