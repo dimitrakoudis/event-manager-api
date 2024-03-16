@@ -5,6 +5,10 @@ name = "pypi"
 
 [packages]
 django = "==4.2.*"
+djangorestframework = "*"
+djangorestframework-simplejwt = "*"
+djoser = "*"
+drf-spectacular = "*"
 
 [dev-packages]
 pytest = "*"
