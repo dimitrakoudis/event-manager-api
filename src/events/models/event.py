@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 from django.db import models
 
 
@@ -28,6 +29,12 @@ class Event(models.Model):
     timestamp = models.DateTimeField('timestamp', null=False, blank=False)
     description = models.TextField('description', null=False, blank=True, default='')
 
+    capacity = models.IntegerField(
+        'capacity',
+        validators=[MinValueValidator(1)],
+        null=True,
+        blank=True,
+    )
     attendees = models.ManyToManyField(User, related_name='events', blank=True)
 
     created_at = models.DateTimeField('created_at', blank=True, null=True, auto_now_add=True)
