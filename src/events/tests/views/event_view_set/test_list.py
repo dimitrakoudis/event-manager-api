@@ -32,6 +32,15 @@ class ListEventsTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['count'], 3)
 
+    def test_user_can_list_only_mine_events(self):
+        response = self.u1_client.get(
+            '/api/v1/events/?only_mine=true',
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['count'], 2)
+
     def test_non_auth_user_cannot_list_events(self):
         response = self.client.get(
             '/api/v1/events/',
