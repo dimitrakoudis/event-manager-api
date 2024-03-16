@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from events.models import Event
+from events.models import Event, Category
 
 TEST_USER_PASS = 'test-12345'
 
@@ -26,7 +26,10 @@ class ListEventsTests(APITestCase):
         t_past = datetime(2024, 3, 15, 0, 0, 0).replace(tzinfo=timezone.utc)
         t_future = datetime(2024, 3, 17, 0, 0, 0).replace(tzinfo=timezone.utc)
 
-        baker.make(Event, title='e1', organizer=self.u1, timestamp=t_future)
+        c1 = baker.make(Category, id=1)
+        baker.make(Category, id=2)
+
+        baker.make(Event, title='e1', organizer=self.u1, timestamp=t_future, categories=[c1, ])
         baker.make(Event, title='e2', organizer=self.u1, timestamp=t_future)
         baker.make(Event, title='e3', organizer=self.u2, timestamp=t_past)
 
@@ -38,6 +41,24 @@ class ListEventsTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['count'], 3)
+
+    def test_user_can_list_filtering_by_categories(self):
+        response = self.u1_client.get(
+            '/api/v1/events/?categories=1&categories=2',
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['count'], 1)
+
+    def test_user_can_list_filtering_by_categories_empty(self):
+        response = self.u1_client.get(
+            '/api/v1/events/?categories=2',
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['count'], 0)
 
     def test_user_can_list_only_mine_events(self):
         response = self.u1_client.get(

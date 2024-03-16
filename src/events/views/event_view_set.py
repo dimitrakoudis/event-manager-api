@@ -77,6 +77,7 @@ class EventViewSet(mixins.ListModelMixin,
         'status': ('exact', ),
         'organizer': ('exact', ),
         'timestamp': ('exact', 'gte', 'lte', ),
+        'categories': ('exact', ),
     }
 
     def get_permissions(self):
