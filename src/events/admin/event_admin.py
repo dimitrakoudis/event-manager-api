@@ -19,6 +19,13 @@ class EventAdmin(admin.ModelAdmin):
         'updated_at',
     )
 
+    raw_id_fields = (
+        'organizer',
+    )
+    autocomplete_fields = (
+        'attendees',
+    )
+
     search_fields = (
         'title',
         'place',
