@@ -40,6 +40,10 @@ class Event(models.Model):
     created_at = models.DateTimeField('created_at', blank=True, null=True, auto_now_add=True)
     updated_at = models.DateTimeField('updated_at', blank=True, null=True, auto_now=True)
 
+    @property
+    def attendees_count(self) -> int:
+        return self.attendees.count()
+
     def __str__(self) -> str:
         return f'{self.title}'
 
